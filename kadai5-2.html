@@ -1,22 +1,32 @@
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="utf-8">
-    <title>演習課題5-2：外部APIの呼び出しテスト</title>
+  <meta charset="utf-8" />
+  <title>Wikipedia要約表示</title>
 </head>
 <body>
-    <h1 id="msg">何かのAPI</h1>
-    <form name="apiform"><p>
-        何かのフォーム：<input type="text" name="form_data">
-        <button type="button" id="btn1" onclick="some_api(this.form)">実行</button>
-    </p></form>
-    
-    <div id="result"></div>
-    <script>
-        async function some_api(myForm) {
-            // ここにコードを書く
-            document.getElementById("result").innerHTML += myForm.form_data.value+"<br />";
-            document.apiform.reset();
-        }
-    </script>
+  <h1>Wikipediaの要約を表示</h1>
+  <input type="text" id="keyword" placeholder="キーワードを入力" />
+  <button onclick="getSummary()">検索</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function getSummary() {
+      const keyword = document.getElementById("keyword").value.trim();
+      if (!keyword) return alert("キーワードを入力してください");
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = "取得中...";
+      try {
+        const res = await fetch(`https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(keyword)}`);
+        if (!res.ok) throw new Error("該当ページがありません");
+        const data = await res.json();
+        resultDiv.innerHTML = `<h2>${data.title}</h2><p>${data.extract}</p>`;
+      } catch (e) {
+        resultDiv.textContent = "エラー: " + e.message;
+      }
+    }
+  </script>
 </body>
 </html>
+
